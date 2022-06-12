@@ -48,23 +48,24 @@ class FlightDataCollection:
         csv=pd.read_csv(url)
         csv.to_csv(csvPath, encoding='utf-8')
 
-    def scrapeCSVData(self, month, year, availableMonths, dataset, flightDataUrlBase, csvPath):
+    def scrapeCSVData(self, month, year, availableMonths, category, dataset, flightDataUrlBase, csvPath):
         urlList = []
         if month == "all":
             for monthKey, urlValue in availableMonths.items():
                 datasets = self.collectDataSetURLs(urlValue)
-                datasetURL = datasets[dataset]
-                urlList.append(flightDataUrlBase+datasetURL)
-                url = flightDataUrlBase+datasetURL
-                csvFilePath = os.path.join(csvPath, f"{dataset}-{monthKey}-{year}.csv")
-                self.writeCSVFiles(csvFilePath, url)
+                if dataset in datasets:
+                    datasetURL = datasets[dataset]
+                    urlList.append(flightDataUrlBase+datasetURL)
+                    url = flightDataUrlBase+datasetURL
+                    csvFilePath = os.path.join(csvPath, f"{category}-{dataset}-{monthKey}-{year}.csv")
+                    self.writeCSVFiles(csvFilePath, url)
         else:
             availableMonths = availableMonths[month]
             datasets = self.collectDataSetURLs(availableMonths)
             datasetURL = datasets[dataset]
             urlList.append(flightDataUrlBase+datasetURL)
             url = flightDataUrlBase+datasetURL
-            csvPath = os.path.join(csvPath, f"{dataset}-{month}-{year}.csv")
+            csvPath = os.path.join(csvPath, f"{category}-{dataset}-{month}-{year}.csv")
             self.writeCSVFiles(csvPath, url)
 
         return urlList
