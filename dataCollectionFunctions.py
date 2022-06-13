@@ -43,12 +43,27 @@ class FlightDataCollection:
                 titleCSVDict.update(titleCSVDictLoop)
 
         return titleCSVDict
+
+    def SelectedDataAvailableMonthsURLs(self, dataset, availableMonthsUrls):
+
+        availableMonthsUrlsConfirmed = {}
+
+        for month, url in availableMonthsUrls.items():
+            datasets = self.collectDataSetURLs(url)
+            if dataset in datasets:
+                availableMonthsUrlsConfirmedLoop = {
+                    month:
+                    url}
+                    
+                availableMonthsUrlsConfirmed.update(availableMonthsUrlsConfirmedLoop)
+        return availableMonthsUrlsConfirmed
+
     
     def writeCSVFiles(csvPath, url):
         csv=pd.read_csv(url)
         csv.to_csv(csvPath, encoding='utf-8')
 
-    def scrapeCSVData(self, month, year, availableMonths, dataset, flightDataUrlBase, csvPath):
+    def scrapeCSVData(self, month, year, availableMonths, category, dataset, flightDataUrlBase, csvPath):
         urlList = []
         if month == "all":
             for monthKey, urlValue in availableMonths.items():
@@ -56,7 +71,7 @@ class FlightDataCollection:
                 datasetURL = datasets[dataset]
                 urlList.append(flightDataUrlBase+datasetURL)
                 url = flightDataUrlBase+datasetURL
-                csvFilePath = os.path.join(csvPath, f"{dataset}-{monthKey}-{year}.csv")
+                csvFilePath = os.path.join(csvPath, f"{category}-{dataset}-{monthKey}-{year}.csv")
                 self.writeCSVFiles(csvFilePath, url)
         else:
             availableMonths = availableMonths[month]
@@ -64,7 +79,7 @@ class FlightDataCollection:
             datasetURL = datasets[dataset]
             urlList.append(flightDataUrlBase+datasetURL)
             url = flightDataUrlBase+datasetURL
-            csvPath = os.path.join(csvPath, f"{dataset}-{month}-{year}.csv")
+            csvPath = os.path.join(csvPath, f"{category}-{dataset}-{month}-{year}.csv")
             self.writeCSVFiles(csvPath, url)
 
         return urlList
