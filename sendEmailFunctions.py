@@ -38,8 +38,6 @@ def sendEmail(recipient, csvPath, year, category, dataset):
 
     attachments = attachmentsList(csvPath)
 
-    emailMsg = 'Hello, This is an automated email containing your requested data files.'
-
     if len(attachments) > 1:
         compiledCsvDf = pd.concat(
             map(pd.read_csv, attachments), ignore_index=True)
@@ -52,13 +50,25 @@ def sendEmail(recipient, csvPath, year, category, dataset):
         for a in attachments:
             if "compiled" not in a:
                 os.remove(a)
-                
+
     attachments = attachmentsList(csvPath)
 
     if "airlines" in attachments[0]:
         jet2Df = compiledCsvDf[compiledCsvDf.isin(["JET2.COM LTD"]).any(axis=1)]
+        emailMsg = 'Hello, This is an automated email containing your requested airlines data file. Below you can find the JET2 data from the attached file.'
     else:
         jet2Df = compiledCsvDf[compiledCsvDf.isin(["BELFAST CITY (GEORGE BEST)", "BRISTOL", "BIRMINGHAM", "EAST MIDLANDS INTERNATIONAL", "EDINBURGH", "GLASGOW", "LEEDS BRADFORD", "STANSTED", "MANCHESTER", "NEWCASTLE"]).any(axis=1)]
+        emailMsg = 'Hello, This is an automated email containing your requested airport data file. Below you can find the data of ten airports JET2 operates from, from the attached file.'
+
+    emailHTML = """\
+        <html>
+        <head></head>
+        <body>
+            {0}
+        </body>
+        </html>
+        """.format(jet2Df.to_html())
+
     csvFilePath = os.path.join(csvPath, f"JET2-Summary-{dataset}-{year}-compiled.csv")
     jet2Df.to_csv(csvFilePath, encoding='utf-8') 
     # create email message
@@ -66,7 +76,7 @@ def sendEmail(recipient, csvPath, year, category, dataset):
     mimeMessage['to'] = recipient
     mimeMessage['subject'] = 'Jet2 Insights Programme'
     mimeMessage.attach(MIMEText(emailMsg, 'plain'))
-    
+    mimeMessage.attach(MIMEText(emailHTML, 'html'))
     # Attach files
     for attachment in attachments:
         content_type, encoding = mimetypes.guess_type(attachment)
