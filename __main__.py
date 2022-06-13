@@ -91,8 +91,11 @@ while dataSetSelectCheck:
 
 print(f"The selected data is available for the following months of {year}:")
 
-for months in availableMonths:
+confirmedAvailableMonths = FlightDataCollection.SelectedDataAvailableMonthsURLs(FlightDataCollection, dataset,  availableMonths)
+for months in confirmedAvailableMonths:
   print(months)
+
+availableMonths = confirmedAvailableMonths
 
 month = input("Please select which month you would like to see the data for (type all for all months):")
 

@@ -8,6 +8,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 import mimetypes
 import pickle
+from re import A
 import pandas as pd
 from googleapiclient.discovery import build
 
@@ -24,30 +25,42 @@ def getService(path):
 
 service = getService(path_to_pickle)
 
-def sendEmail(recipient, csvPath, year, category, dataset):
+def attachmentsList(csvPath):
     attachmentsList = os.listdir(csvPath)
     attachments = []
     
     for csvs in attachmentsList:
         attachments.append(os.path.join(csvPath, csvs))
+    
+    return attachments
+
+def sendEmail(recipient, csvPath, year, category, dataset):
+
+    attachments = attachmentsList(csvPath)
 
     emailMsg = 'Hello, This is an automated email containing your requested data files.'
 
-    compiledCsvDf = pd.concat(
-        map(pd.read_csv, attachments), ignore_index=True)
+    if len(attachments) > 1:
+        compiledCsvDf = pd.concat(
+            map(pd.read_csv, attachments), ignore_index=True)
 
-    compiledCsvDf = compiledCsvDf.iloc[:, 1:]
+        compiledCsvDf = compiledCsvDf.iloc[:, 1:]
+
+        csvFilePath = os.path.join(csvPath, f"{category}-{dataset}-{year}-compiled.csv")
+        compiledCsvDf.to_csv(csvFilePath, encoding='utf-8')
+
+        for a in attachments:
+            if "compiled" not in a:
+                os.remove(a)
+                
+    attachments = attachmentsList(csvPath)
 
     if "airlines" in attachments[0]:
         jet2Df = compiledCsvDf[compiledCsvDf.isin(["JET2.COM LTD"]).any(axis=1)]
     else:
         jet2Df = compiledCsvDf[compiledCsvDf.isin(["BELFAST CITY (GEORGE BEST)", "BRISTOL", "BIRMINGHAM", "EAST MIDLANDS INTERNATIONAL", "EDINBURGH", "GLASGOW", "LEEDS BRADFORD", "STANSTED", "MANCHESTER", "NEWCASTLE"]).any(axis=1)]
-
-    csvPath = os.path.join(csvPath, f"{category}-{dataset}-{year}-compiled.csv")
-    compiledCsvDf.to_csv(csvPath, encoding='utf-8')
-
-    csvPath = os.path.join(csvPath, f"JET2-Summary-{dataset}-{year}-compiled.csv")
-    jet2Df.to_csv(csvPath, encoding='utf-8')
+    csvFilePath = os.path.join(csvPath, f"JET2-Summary-{dataset}-{year}-compiled.csv")
+    jet2Df.to_csv(csvFilePath, encoding='utf-8') 
     # create email message
     mimeMessage = MIMEMultipart()
     mimeMessage['to'] = recipient

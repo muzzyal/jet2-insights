@@ -43,6 +43,21 @@ class FlightDataCollection:
                 titleCSVDict.update(titleCSVDictLoop)
 
         return titleCSVDict
+
+    def SelectedDataAvailableMonthsURLs(self, dataset, availableMonthsUrls):
+
+        availableMonthsUrlsConfirmed = {}
+
+        for month, url in availableMonthsUrls.items():
+            datasets = self.collectDataSetURLs(url)
+            if dataset in datasets:
+                availableMonthsUrlsConfirmedLoop = {
+                    month:
+                    url}
+                    
+                availableMonthsUrlsConfirmed.update(availableMonthsUrlsConfirmedLoop)
+        return availableMonthsUrlsConfirmed
+
     
     def writeCSVFiles(csvPath, url):
         csv=pd.read_csv(url)
@@ -53,12 +68,11 @@ class FlightDataCollection:
         if month == "all":
             for monthKey, urlValue in availableMonths.items():
                 datasets = self.collectDataSetURLs(urlValue)
-                if dataset in datasets:
-                    datasetURL = datasets[dataset]
-                    urlList.append(flightDataUrlBase+datasetURL)
-                    url = flightDataUrlBase+datasetURL
-                    csvFilePath = os.path.join(csvPath, f"{category}-{dataset}-{monthKey}-{year}.csv")
-                    self.writeCSVFiles(csvFilePath, url)
+                datasetURL = datasets[dataset]
+                urlList.append(flightDataUrlBase+datasetURL)
+                url = flightDataUrlBase+datasetURL
+                csvFilePath = os.path.join(csvPath, f"{category}-{dataset}-{monthKey}-{year}.csv")
+                self.writeCSVFiles(csvFilePath, url)
         else:
             availableMonths = availableMonths[month]
             datasets = self.collectDataSetURLs(availableMonths)
