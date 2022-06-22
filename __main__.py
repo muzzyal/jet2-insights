@@ -17,6 +17,12 @@ maxYear = d.year
 months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 flightDataUrlBase = 'https://www.caa.co.uk/'
 
+attachments = sendEmailFunctions.attachmentsList(csvPath)
+
+if len(attachments) > 0:
+  for a in attachments:
+    os.remove(a)
+
 print("Hello and welcome to the Jet2 data collection programme")
 year = input("Which year would you like to view data for?")
 

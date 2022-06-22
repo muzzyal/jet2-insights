@@ -55,10 +55,10 @@ def sendEmail(recipient, csvPath, year, category, dataset):
 
     if "airlines" in attachments[0]:
         jet2Df = compiledCsvDf[compiledCsvDf.isin(["JET2.COM LTD"]).any(axis=1)]
-        emailMsg = 'Hello, This is an automated email containing your requested airlines data file. Below you can find the JET2 data from the attached file.'
+        emailMsg = 'Hello, \nThis is an automated email containing your requested airlines data file. Below you can find the JET2 data from the attached file.'
     else:
         jet2Df = compiledCsvDf[compiledCsvDf.isin(["BELFAST CITY (GEORGE BEST)", "BRISTOL", "BIRMINGHAM", "EAST MIDLANDS INTERNATIONAL", "EDINBURGH", "GLASGOW", "LEEDS BRADFORD", "STANSTED", "MANCHESTER", "NEWCASTLE"]).any(axis=1)]
-        emailMsg = 'Hello, This is an automated email containing your requested airport data file. Below you can find the data of ten airports JET2 operates from, from the attached file.'
+        emailMsg = 'Hello, \nThis is an automated email containing your requested airport data file. Below you can find the data of the ten airports JET2 operates from, from the attached file.'
 
     emailHTML = """\
         <html>
